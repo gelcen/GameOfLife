@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="GameOfLife.Engine.Tests/GameOfLife.Engine.Tests.csproj" Id="3c128c77-b097-4992-89d1-19643c9f53ab" />
+  <Project Path="GameOfLife.Engine/GameOfLife.Engine.csproj" />
+</Solution>
