@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Testing.Platform.Configurations;
 
 namespace GameOfLife.Engine.Tests;
 
@@ -322,6 +321,7 @@ public class EngineTests
         var actualBoardGen2 = _board.ToString();
 
         actualBoardGen2.Should().NotBe(initialBoard);
+        actualBoardGen1.Should().NotBe(actualBoardGen2);
 
         _game.Iterate();
 
@@ -333,7 +333,7 @@ public class EngineTests
     [Test]
     public void Test4_Glider()
     {
-        var expectedBoardGen5 = @"....................
+        var expectedBoardGen4 = @"....................
 ..O.................
 ...O................
 .OOO................
@@ -360,14 +360,50 @@ public class EngineTests
         // Act
         _game.InitializeGame(filePath);
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             _game.Iterate();
         }
 
-        var actualBoardGen5 = _board.ToString();
+        var actualBoardGen4 = _board.ToString();
 
-        actualBoardGen5.Should().NotBe(expectedBoardGen5);
+        actualBoardGen4.Should().Be(expectedBoardGen4);
+    }
+
+    [Test]
+    public void Test5_Toroid()
+    {
+        var expeсtedBoardGen48 = @".O..........
+..O.........
+OOO.........
+............
+............
+............
+............
+............
+............
+............
+............
+............
+";
+        var configuration = new Configuration(12, 12);
+        var board = new Board(configuration);
+        var neighbourLocationCalculator = new NeighbourLocationCalculator(configuration);
+        var game = new Game(board, neighbourLocationCalculator);
+
+        var filePath = GetFilePath(nameof(Test5_Toroid));
+
+        // Act
+        game.InitializeGame(filePath);
+
+        for (int i = 0; i < 48; i++)
+        {
+            game.Iterate();
+        }
+
+        var actualBoard = board.ToString();
+
+        actualBoard.Should().Be(expeсtedBoardGen48);
     }
 
     private string GetFilePath(string fileName)
