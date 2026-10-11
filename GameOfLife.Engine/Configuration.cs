@@ -112,6 +112,7 @@ public interface IBoard
     Cell[,] Cells { get; }
     void InitializeEmptyBoard();
     void InitializeFromFile(string fileName);
+    void InitializeFromString(string initialState);
     Cell GetCellAtFromBuffer(int row, int col);
     void Bufferize();
 }
@@ -164,6 +165,39 @@ public class Board : IBoard
         int row = 0;
 
         foreach (var line in File.ReadAllLines(fileName))
+        {
+            if (line.StartsWith('!'))
+            {
+                continue;
+            }
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (line[i] == 'O')
+                {
+                    _cells[row, i].BeBorn();
+                }
+                else
+                {
+                    _cells[row, i].Die();
+                }
+            }
+
+            row++;
+        }
+
+        Bufferize();
+    }
+
+    public void InitializeFromString(string initialState)
+    {
+        InitializeEmptyBoard();
+
+        var lines = initialState.Split(Environment.NewLine);
+
+        int row = 0;
+
+        foreach (var line in lines)
         {
             if (line.StartsWith('!'))
             {
@@ -241,6 +275,7 @@ public interface IGame
     bool IsGameInitialized { get; }
     void InitializeGame();
     void InitializeGame(string fileName);
+    void InitializeFromString(string initialState);
     void Iterate();
 }
 
@@ -260,6 +295,12 @@ public class Game(IBoard board, INeighbourLocationCalculator neighbourLocationCa
     public void InitializeGame(string fileName)
     {
         _board.InitializeFromFile(fileName);
+        IsGameInitialized = true;
+    }
+
+    public void InitializeFromString(string initialState)
+    {
+        _board.InitializeFromString(initialState);
         IsGameInitialized = true;
     }
 

@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace GameOfLife.Engine.Tests;
 
@@ -404,6 +406,142 @@ OOO.........
         var actualBoard = board.ToString();
 
         actualBoard.Should().Be(expeсtedBoardGen48);
+    }
+
+    [Test]
+    public void Test6_EmptyBoard()
+    {
+        var expectedEmptyBoard = @"....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+";
+
+        // Act
+        _game.InitializeGame();
+
+        for (int i = 0; i < 10; i++)
+        {
+            _game.Iterate();
+        }
+
+        var actualBoard = _board.ToString();
+
+        actualBoard.Should().Be(expectedEmptyBoard);
+    }
+
+    [Test]
+    public void Test6_1x1Board()
+    {
+        var expectedBoard = @".
+";
+
+        var configuration = new Configuration(1, 1);
+        var board = new Board(configuration);
+        var neighbourLocationCalculator = new NeighbourLocationCalculator(configuration);
+        var game = new Game(board, neighbourLocationCalculator);
+
+        // Act
+        game.InitializeGame();
+
+        for (int i = 0; i < 10; i++)
+        {
+            game.Iterate();
+        }
+
+        var actualBoard = board.ToString();
+
+        actualBoard.Should().Be(expectedBoard);
+    }
+
+    [Test]
+    public void Test6_2x2Board()
+    {
+        var expectedBoard = @"..
+..
+";
+
+        var configuration = new Configuration(2, 2);
+        var board = new Board(configuration);
+        var neighbourLocationCalculator = new NeighbourLocationCalculator(configuration);
+        var game = new Game(board, neighbourLocationCalculator);
+
+        // Act
+        game.InitializeGame();
+
+        for (int i = 0; i < 10; i++)
+        {
+            game.Iterate();
+        }
+
+        var actualBoard = board.ToString();
+
+        actualBoard.Should().Be(expectedBoard);
+    }
+
+    [Test]
+    public void Test7_GoldenHash()
+    {
+        string expectedHash = "847EF45A45FAC1A35F5E93AC2DC1A188C47AD078A81E9131D1A1347F2D783EE4";
+
+        var rows = 64;
+        var cols = 64;
+
+        var random = new Random(6565345);
+
+        var pseudoRandomState = new StringBuilder();
+
+        for (int i = 0; i < rows; i++)
+        {
+            var line = "";
+            for (int j = 0; j < cols; j++)
+            {
+                if (random.Next(64) > 32)
+                {
+                    line += 'O';
+                }
+                else
+                {
+                    line += '.';
+                }
+            }
+            pseudoRandomState.AppendLine(line);
+        }
+
+        var configuration = new Configuration(rows, cols);
+        var board = new Board(configuration);
+        var neighbourLocationCalculator = new NeighbourLocationCalculator(configuration);
+        var game = new Game(board, neighbourLocationCalculator);
+
+        // Act
+        game.InitializeFromString(pseudoRandomState.ToString());
+
+        for (int i = 0; i < 100; i++)
+        {
+            game.Iterate();
+        }
+
+        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(board.ToString()));
+
+        var actualHash = Convert.ToHexString(hashBytes);
+
+        actualHash.Should().Be(expectedHash);
     }
 
     private string GetFilePath(string fileName)
